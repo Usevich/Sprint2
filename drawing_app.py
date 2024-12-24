@@ -25,12 +25,15 @@ class DrawingApp:
         self.setup_ui()
         # Переменные для отслеживания координат мыши
         self.last_x, self.last_y = None, None
+
         self.pen_color = 'black'  # Цвет кисти по умолчанию
+        self.previous_color = 'black'
         self.pen_size = 1  # Размер кисти по умолчанию
+
         # Подключение событий для рисования мышью
         self.canvas.bind('<B1-Motion>', self.paint)
         self.canvas.bind('<ButtonRelease-1>', self.reset)
-
+        self.erase_is_enable = False
     def setup_ui(self):
         """
         Настройка панели управления, включающей кнопки для очистки экрана, выбора цвета,
@@ -46,7 +49,9 @@ class DrawingApp:
         # Кнопка "Выбрать цвет"
         color_button = tk.Button(control_frame, text="Выбрать цвет", command=self.choose_color)
         color_button.pack(side=tk.LEFT)
-
+        # Унопка "Кисть"
+        color_button = tk.Button(control_frame, text="Кисть", command=self.use_paint)
+        color_button.pack(side=tk.LEFT)
         # Кнопка "Сохранить"
         save_button = tk.Button(control_frame, text="Сохранить", command=self.save_image)
         save_button.pack(side=tk.LEFT)
@@ -56,12 +61,37 @@ class DrawingApp:
         self.pen_size_var = tk.IntVar(value=sizes[0])  # Переменная для хранения выбранного размера кисти
         size_menu = tk.OptionMenu(control_frame, self.pen_size_var, *sizes, command=self.update_pen_size)
         size_menu.pack(side=tk.LEFT)
+        # Кнопка "Ластик"
+        eraser_button = tk.Button(control_frame, text="Ластик", command=self.use_eraser)
+        eraser_button.pack(side=tk.LEFT)
+
+    def use_paint(self):
+        self.erase_is_enable = False
+        self.paint
+    def use_eraser(self):
+        """
+        Включает режим "Ластик", который позволяет рисовать цветом фона.
+        """
+        # Сохраняем текущий цвет кисти
+        if self.erase_is_enable == True :
+            self.erase_is_enable = False
+        else:
+            self.previous_color = self.pen_color
+        # Меняем цвет кисти на цвет фона (белый)
+            self.pen_color = "white"
+            self.erase_is_enable = True
+
 
     def paint(self, event):
         """
         Рисование на холсте при движении мыши.
         :param event: объект события, содержащий информацию о положении мыши
         """
+        if self.erase_is_enable == False:
+            self.pen_color = self.previous_color
+        else:
+            self.pen_color = "white"
+
         if self.last_x and self.last_y:
             # Рисуем на холсте линии со сглаживанием
             self.canvas.create_line(self.last_x, self.last_y, event.x, event.y,
@@ -94,6 +124,7 @@ class DrawingApp:
         Вызывает диалог для выбора цвета кисти. Обновляет текущий цвет кисти.
         """
         self.pen_color = colorchooser.askcolor(color=self.pen_color)[1]
+        self.previous_color = self.pen_color
 
     def save_image(self):
         """
