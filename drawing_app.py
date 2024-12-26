@@ -33,7 +33,9 @@ class DrawingApp:
         # Подключение событий для рисования мышью
         self.canvas.bind('<B1-Motion>', self.paint)
         self.canvas.bind('<ButtonRelease-1>', self.reset)
+        self.canvas.bind('<Button-3>', self.pick_color)
         self.erase_is_enable = False
+
     def setup_ui(self):
         """
         Настройка панели управления, включающей кнопки для очистки экрана, выбора цвета,
@@ -50,8 +52,8 @@ class DrawingApp:
         color_button = tk.Button(control_frame, text="Выбрать цвет", command=self.choose_color)
         color_button.pack(side=tk.LEFT)
         # Унопка "Кисть"
-        color_button = tk.Button(control_frame, text="Кисть", command=self.use_paint)
-        color_button.pack(side=tk.LEFT)
+        brush_button = tk.Button(control_frame, text="Кисть", command=self.use_paint)
+        brush_button.pack(side=tk.LEFT)
         # Кнопка "Сохранить"
         save_button = tk.Button(control_frame, text="Сохранить", command=self.save_image)
         save_button.pack(side=tk.LEFT)
@@ -68,19 +70,19 @@ class DrawingApp:
     def use_paint(self):
         self.erase_is_enable = False
         self.paint
+
     def use_eraser(self):
         """
         Включает режим "Ластик", который позволяет рисовать цветом фона.
         """
         # Сохраняем текущий цвет кисти
-        if self.erase_is_enable == True :
+        if self.erase_is_enable == True:
             self.erase_is_enable = False
         else:
             self.previous_color = self.pen_color
         # Меняем цвет кисти на цвет фона (белый)
             self.pen_color = "white"
             self.erase_is_enable = True
-
 
     def paint(self, event):
         """
@@ -144,6 +146,16 @@ class DrawingApp:
         :param size: выбранный размер кисти
         """
         self.pen_size = int(size)  # Переменная pen_size обновляется в соответствии с выбором
+
+    def pick_color(self, event):
+        """
+        Устанавливает текущим цветом для рисования цвет пикселя
+        в текущих координатах при нажатии правай конопки мыши.
+        :param event: объект события
+        """
+        rgb = self.image.getpixel((event.x, event.y))
+        self.pen_color = '#{:02x}{:02x}{:02x}'.format(rgb[0], rgb[1], rgb[2])
+        self.previous_color = self.pen_color
 
 
 def main():
