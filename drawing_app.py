@@ -35,6 +35,14 @@ class DrawingApp:
         self.canvas.bind('<ButtonRelease-1>', self.reset)
         self.canvas.bind('<Button-3>', self.pick_color)
         self.erase_is_enable = False
+        self.register_shortcuts()
+
+    def register_shortcuts(self):
+        """
+        Регистрация горячих клавиш для быстрого доступа к функциям интерфейса.
+        """
+        self.root.bind('<Control-s>', self.save_image)  # Ctrl+S для сохранения изображения
+        self.root.bind('<Control-c>', self.choose_color)  # Ctrl+C для выбора цвета
 
     def setup_ui(self):
         """
@@ -121,14 +129,14 @@ class DrawingApp:
         self.image = Image.new("RGB", (600, 400), "white")  # Удаляем все элементы с холста
         self.draw = ImageDraw.Draw(self.image)
 
-    def choose_color(self):
+    def choose_color(self, event=None):
         """
         Вызывает диалог для выбора цвета кисти. Обновляет текущий цвет кисти.
         """
         self.pen_color = colorchooser.askcolor(color=self.pen_color)[1]
         self.previous_color = self.pen_color
 
-    def save_image(self):
+    def save_image(self, event=None):
         """
         Сохраняет текущее изображение в файл формата PNG. Вызывает диалог выбора пути
         и уведомляет пользователя о завершении сохранения.
