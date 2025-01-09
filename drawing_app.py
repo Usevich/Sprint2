@@ -22,7 +22,7 @@ class DrawingApp:
         self.canvas = tk.Canvas(root, width=600, height=400, bg='white')
         self.canvas.pack()
         # Инициализация других элементов интерфейса
-        self.setup_ui()
+
         # Переменные для отслеживания координат мыши
         self.last_x, self.last_y = None, None
 
@@ -36,7 +36,7 @@ class DrawingApp:
         self.canvas.bind('<Button-3>', self.pick_color)
         self.erase_is_enable = False
         self.register_shortcuts()
-
+        self.setup_ui()
     def register_shortcuts(self):
         """
         Регистрация горячих клавиш для быстрого доступа к функциям интерфейса.
@@ -74,6 +74,9 @@ class DrawingApp:
         # Кнопка "Ластик"
         eraser_button = tk.Button(control_frame, text="Ластик", command=self.use_eraser)
         eraser_button.pack(side=tk.LEFT)
+        # Холст для предварительного просмотра цвета кисти
+        self.preview_canvas = tk.Canvas(control_frame, width=20, height=20, bg=self.pen_color)
+        self.preview_canvas.pack(side=tk.LEFT)
 
     def use_paint(self):
         self.erase_is_enable = False
@@ -135,6 +138,8 @@ class DrawingApp:
         """
         self.pen_color = colorchooser.askcolor(color=self.pen_color)[1]
         self.previous_color = self.pen_color
+        # Обновляем цвет холста предварительного просмотра
+        self.preview_canvas.config(bg=self.pen_color)
 
     def save_image(self, event=None):
         """
