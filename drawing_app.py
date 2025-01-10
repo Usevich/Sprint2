@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import colorchooser, filedialog, messagebox
+from tkinter import colorchooser, filedialog, messagebox, simpledialog
 from PIL import Image, ImageDraw
 
 
@@ -37,6 +37,7 @@ class DrawingApp:
         self.erase_is_enable = False
         self.register_shortcuts()
         self.setup_ui()
+
     def register_shortcuts(self):
         """
         Регистрация горячих клавиш для быстрого доступа к функциям интерфейса.
@@ -77,6 +78,9 @@ class DrawingApp:
         # Холст для предварительного просмотра цвета кисти
         self.preview_canvas = tk.Canvas(control_frame, width=20, height=20, bg=self.pen_color)
         self.preview_canvas.pack(side=tk.LEFT)
+        # Кнопка для изменения размера холста
+        change_size_button = tk.Button(control_frame, text="Изменить размер холста", command=self.change_canvas_size)
+        change_size_button.pack(side=tk.LEFT)
 
     def use_paint(self):
         self.erase_is_enable = False
@@ -169,6 +173,24 @@ class DrawingApp:
         rgb = self.image.getpixel((event.x, event.y))
         self.pen_color = '#{:02x}{:02x}{:02x}'.format(rgb[0], rgb[1], rgb[2])
         self.previous_color = self.pen_color
+
+    def change_canvas_size(self):
+        """
+        Изменяет размер холста в зависимости от введенных пользователем параметров.
+        """
+        # Запрашиваем у пользователя новую ширину и высоту
+        new_width = simpledialog.askinteger("Новая ширина", "Введите новую ширину:")
+        new_height = simpledialog.askinteger("Новая высота", "Введите новую высоту:")
+
+        if new_width and new_height:
+            # Обновляем размеры Canvas
+            self.canvas.config(width=new_width, height=new_height)
+            # Создаем новое изображение с обновленными размерами и белым фоном
+            self.image = Image.new("RGB", (new_width, new_height), "white")
+            self.draw = ImageDraw.Draw(self.image)
+
+        # Переменная для отслеживания координат мыши
+        self.last_x, self.last_y = None, None
 
 
 def main():
