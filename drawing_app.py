@@ -19,7 +19,8 @@ class DrawingApp:
         self.image = Image.new("RGB", (600, 400), "white")
         self.draw = ImageDraw.Draw(self.image)
         # Настраиваем холст
-        self.canvas = tk.Canvas(root, width=600, height=400, bg='white')
+        self.canvas_color = 'white'
+        self.canvas = tk.Canvas(root, width=600, height=400, bg=self.canvas_color)
         self.canvas.pack()
         # Инициализация других элементов интерфейса
 
@@ -81,6 +82,12 @@ class DrawingApp:
         # Кнопка для изменения размера холста
         change_size_button = tk.Button(control_frame, text="Изменить размер холста", command=self.change_canvas_size)
         change_size_button.pack(side=tk.LEFT)
+        # Кнопка "Текст"
+        text_button = tk.Button(control_frame, text="Текст", command=self.add_text)
+        text_button.pack(side=tk.LEFT)
+        # Кнопка "Изменить фон"
+        bg_color_button = tk.Button(control_frame, text="Изменить фон", command=self.change_background_color)
+        bg_color_button.pack(side=tk.LEFT)
 
     def use_paint(self):
         self.erase_is_enable = False
@@ -96,7 +103,6 @@ class DrawingApp:
         else:
             self.previous_color = self.pen_color
         # Меняем цвет кисти на цвет фона (белый)
-            self.pen_color = "white"
             self.erase_is_enable = True
 
     def paint(self, event):
@@ -107,7 +113,7 @@ class DrawingApp:
         if self.erase_is_enable == False:
             self.pen_color = self.previous_color
         else:
-            self.pen_color = "white"
+            self.pen_color = self.canvas_color
 
         if self.last_x and self.last_y:
             # Рисуем на холсте линии со сглаживанием
@@ -191,6 +197,36 @@ class DrawingApp:
 
         # Переменная для отслеживания координат мыши
         self.last_x, self.last_y = None, None
+
+    def add_text(self):
+        """
+        Запрашивает у пользователя текст и размещает его на холсте по клику мыши.
+        """
+        input_text = simpledialog.askstring("Ввод текста", "Введите текст:")
+        if input_text:
+            self.canvas.bind('<Button-1>', lambda event, text=input_text: self.draw_text(event, text))
+
+    def draw_text(self, event, text):
+        """
+        Добавляет текст на картинку в заданных координатах, снимает биндинг.
+        :param event: объект события, содержащий координаты клика
+        :param text: текст для добавления на изображение
+        """
+        self.draw.text((event.x, event.y), text, fill=self.pen_color)
+        self.canvas.create_text(event.x, event.y, anchor='nw', text=text, fill=self.pen_color, font=("Arial", 15))
+        self.canvas.unbind('<Button-1>')  # Снятие биндинга после размещения текста
+
+    def change_background_color(self):
+        """
+        Изменяет цвет фона на выбранный.
+        """
+        new_bg_color = colorchooser.askcolor(title="Выберите цвет фона")[1]
+        if new_bg_color:
+            self.canvas.config(bg=new_bg_color)
+            # Новый холст с учетом нового фона
+            self.image = Image.new("RGB", (self.canvas.winfo_width(), self.canvas.winfo_height()), new_bg_color)
+            self.draw = ImageDraw.Draw(self.image)
+            self.canvas_color = new_bg_color
 
 
 def main():
